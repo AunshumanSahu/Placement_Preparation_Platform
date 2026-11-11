@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PlacePrep — AI Interview Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ════════════ AUTH SCREEN ════════════ -->
+<div id="auth-screen" style="display:none;position:fixed;inset:0;background:#06080f;z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="width:100%;max-width:440px;background:#0b0f1c;border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:36px 32px">
+    <!-- Logo -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px">
+      <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#db2777);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 24px rgba(124,58,237,0.5)">⚡</div>
+      <div>
+        <div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.03em">PlacePrep</div>
+        <div style="font-size:10px;color:#4b5563;letter-spacing:0.12em;text-transform:uppercase">AI INTERVIEW PLATFORM</div>
+      </div>
+    </div>
+    <!-- Tab switcher -->
+    <div style="display:flex;background:rgba(255,255,255,0.05);border-radius:12px;padding:4px;margin-bottom:24px;gap:4px">
+      <button id="auth-tab-signin" class="auth-tab active" onclick="authSwitchTab('signin')" style="flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;background:linear-gradient(135deg,#7c3aed,#db2777);color:#fff;transition:all 0.2s">Sign In</button>
+      <button id="auth-tab-register" class="auth-tab" onclick="authSwitchTab('register')" style="flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;background:transparent;color:#6b7280;transition:all 0.2s">Create Account</button>
+    </div>
+    <!-- Sign In form -->
+    <div id="auth-signin-form">
+      <div style="font-size:22px;font-weight:900;color:#fff;margin-bottom:4px">Welcome back 👋</div>
+      <div style="font-size:12px;color:#6b7280;margin-bottom:20px">Your progress is saved and waiting for you</div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:10px;font-weight:800;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">EMAIL</div>
+        <input id="auth-email" type="email" placeholder="you@example.com" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;color:#e8eaf0;font-size:13px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'" onkeydown="if(event.key==='Enter')authSignIn()"/>
+      </div>
+      <div style="margin-bottom:16px">
+        <div style="font-size:10px;font-weight:800;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">PASSWORD</div>
+        <div style="position:relative">
+          <input id="auth-pass" type="password" placeholder="••••••••" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 44px 12px 14px;color:#e8eaf0;font-size:13px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'" onkeydown="if(event.key==='Enter')authSignIn()"/>
+          <button type="button" onclick="togglePassVis('auth-pass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#6b7280;padding:0;line-height:1">👁</button>
+        </div>
+      </div>
+      <div id="auth-error" style="display:none;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.3);border-radius:8px;padding:10px 14px;font-size:12px;color:#f87171;margin-bottom:12px"></div>
+      <button onclick="authSignIn()" style="width:100%;padding:13px;background:linear-gradient(135deg,#7c3aed,#db2777);color:#fff;font-size:14px;font-weight:800;border:none;border-radius:11px;cursor:pointer;font-family:inherit;margin-bottom:10px">Sign In →</button>
+      <button onclick="authGuest()" style="width:100%;padding:11px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#6b7280;font-size:13px;font-weight:600;border-radius:11px;cursor:pointer;font-family:inherit">Continue as Guest</button>
+    </div>
+    <!-- Register form -->
+    <div id="auth-register-form" style="display:none">
+      <div style="font-size:22px;font-weight:900;color:#fff;margin-bottom:4px">Create Account 🚀</div>
+      <div style="font-size:12px;color:#6b7280;margin-bottom:20px">Join thousands cracking placements</div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:10px;font-weight:800;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">FULL NAME</div>
+        <input id="auth-name" type="text" placeholder="Your name" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;color:#e8eaf0;font-size:13px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"/>
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:10px;font-weight:800;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">EMAIL</div>
+        <input id="auth-email2" type="email" placeholder="you@example.com" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;color:#e8eaf0;font-size:13px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"/>
+      </div>
+      <div style="margin-bottom:16px">
+        <div style="font-size:10px;font-weight:800;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">PASSWORD (MIN 6 CHARS)</div>
+        <div style="position:relative">
+          <input id="auth-pass2" type="password" placeholder="••••••••" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 44px 12px 14px;color:#e8eaf0;font-size:13px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'" onkeydown="if(event.key==='Enter')authRegister()"/>
+          <button type="button" onclick="togglePassVis('auth-pass2',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#6b7280;padding:0;line-height:1">👁</button>
+        </div>
+      </div>
+      <div id="auth-error-reg" style="display:none;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.3);border-radius:8px;padding:10px 14px;font-size:12px;color:#f87171;margin-bottom:12px"></div>
+      <button onclick="authRegister()" style="width:100%;padding:13px;background:linear-gradient(135deg,#7c3aed,#db2777);color:#fff;font-size:14px;font-weight:800;border:none;border-radius:11px;cursor:pointer;font-family:inherit;margin-bottom:10px">Create Account →</button>
+      <button onclick="authGuest()" style="width:100%;padding:11px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#6b7280;font-size:13px;font-weight:600;border-radius:11px;cursor:pointer;font-family:inherit">Continue as Guest</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ APP WRAPPER ════════════ -->
+<div id="app-wrapper" style="display:none;flex:1;min-width:0;flex-direction:row;height:100vh;overflow:hidden">
+
+<aside id="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-inner">
+      <div class="logo-icon">⚡</div>
+      <div>
+        <div class="logo-name">PlacePrep</div>
+        <div class="logo-sub">AI Interview Platform</div>
+      </div>
+    </div>
+  </div>
+  <nav id="nav">
+    <div class="nav-item active" data-page="dashboard"><span class="nav-icon">⚡</span>Dashboard</div>
+    <div class="nav-item" data-page="dsa"><span class="nav-icon">💻</span>DSA Tracker</div>
+    <div class="nav-item" data-page="aptitude"><span class="nav-icon">🧮</span>Mock Tests</div>
+    <div class="nav-item" data-page="resume"><span class="nav-icon">📄</span>Resume AI</div>
+    <div class="nav-item" data-page="chatbot"><span class="nav-icon">🤖</span>Interview Bot</div>
+    <div class="nav-item" data-page="patterns"><span class="nav-icon">🧩</span>DSA Patterns <span class="nav-badge">NEW</span></div>
+    <div class="nav-item" data-page="companies"><span class="nav-icon">🏢</span>Company Sheets</div>
+    <div class="nav-item" data-page="leaderboard"><span class="nav-icon">🏆</span>Leaderboard</div>
+    <div class="nav-item" data-page="streak"><span class="nav-icon">🔥</span>Daily Streak <span class="nav-badge">×7</span></div>
+  </nav>
+  <div class="user-bar">
+    <div class="user-inner">
+      <div class="avatar" id="sidebar-avatar">YO</div>
+      <div>
+        <div class="user-name" id="sidebar-name">You</div>
+        <div class="user-sub" id="sidebar-xp-sub">Rank — · 0 XP</div>
+      </div>
+      <div style="margin-left:auto;font-size:16px" id="sidebar-streak-icon">🔥</div>
+    </div>
+    <div class="xp-bar-wrap">
+      <div class="xp-labels"><span id="sidebar-level">Level 1</span><span id="sidebar-xp-label">0 / 500 XP</span></div>
+      <div class="xp-track"><div class="xp-fill" id="sidebar-xp-fill" style="width:0%"></div></div>
+    </div>
+    <button class="logout-btn" onclick="logout()">🚪 Sign Out</button>
+  </div>
+</aside>
+
+<!-- ════════════ MAIN ════════════ -->
+<main id="main">
+
+<!-- ══ DASHBOARD ══════════════════════════════════════════ -->
+<section id="page-dashboard" class="page active">
+  <div class="ph">
+    <h1 id="dash-greeting">Good morning! 👋 <span>Ready to crack it?</span></h1>
+    <p id="dash-streak-msg">Start your streak today! Complete a challenge to begin.</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card" onclick="showPage('dsa')" style="cursor:pointer;border-top-color:var(--violet2)">
+      <div class="stat-icon">💻</div><div class="stat-val" id="dash-solved-stat">0/60</div>
+      <div class="stat-label">Problems Solved</div><div class="stat-sub" style="color:var(--violet3)" id="dash-solved-sub">Start solving!</div>
+    </div>
+    <div class="stat-card" onclick="showPage('streak')" style="cursor:pointer;border-top-color:var(--amber2)">
+      <div class="stat-icon">🔥</div><div class="stat-val" id="dash-streak-val">0d</div>
+      <div class="stat-label">Active Streak</div><div class="stat-sub" style="color:var(--amber2)" id="dash-streak-sub">Start today!</div>
+    </div>
+    <div class="stat-card" onclick="showPage('aptitude')" style="cursor:pointer;border-top-color:var(--green2)">
+      <div class="stat-icon">🧮</div><div class="stat-val" id="dash-tests-val">0</div>
+      <div class="stat-label">Tests Completed</div><div class="stat-sub" style="color:var(--green2)" id="dash-tests-sub">Take a quiz!</div>
+    </div>
+    <div class="stat-card" onclick="showPage('leaderboard')" style="cursor:pointer;border-top-color:#3b82f6">
+      <div class="stat-icon">🏆</div><div class="stat-val" id="dash-rank-val">—</div>
+      <div class="stat-label">Leaderboard Rank</div><div class="stat-sub" style="color:#60a5fa">Keep practicing!</div>
+    </div>
+    <div class="stat-card" style="border-top-color:var(--pink2)">
+      <div class="stat-icon">⭐</div><div class="stat-val" id="dash-xp-val">0</div>
+      <div class="stat-label">Total XP Earned</div><div class="stat-sub" style="color:var(--pink2)" id="dash-level-sub">Level 1</div>
+    </div>
+  </div>
+
+  <div class="sec-label">Quick Actions</div>
+  <div class="qa-grid" style="margin-bottom:28px">
+    <div class="quick-card" onclick="showPage('dsa')"><div class="quick-icon" style="background:rgba(124,58,237,0.18)">💻</div><div><div style="font-size:13px;font-weight:700;color:var(--text)">DSA Practice</div><div style="font-size:11px;color:var(--muted2)">Arrays · DP · Graphs</div></div></div>
+    <div class="quick-card" onclick="showPage('aptitude')"><div class="quick-icon" style="background:rgba(5,150,105,0.18)">🧮</div><div><div style="font-size:13px;font-weight:700;color:var(--text)">Aptitude Quiz</div><div style="font-size:11px;color:var(--muted2)">Speed · Logic · Math</div></div></div>
+    <div class="quick-card" onclick="startTCS()"><div class="quick-icon" style="background:rgba(245,158,11,0.18)">🎯</div><div><div style="font-size:13px;font-weight:700;color:var(--text)">TCS NQT Mode</div><div style="font-size:11px;color:var(--muted2)">Real NQT patterns</div></div></div>
+    <div class="quick-card" onclick="startGATE()"><div class="quick-icon" style="background:rgba(6,182,212,0.18)">🎓</div><div><div style="font-size:13px;font-weight:700;color:var(--text)">GATE MCQ</div><div style="font-size:11px;color:var(--muted2)">CS core subjects</div></div></div>
+    <div class="quick-card" onclick="showPage('chatbot')"><div class="quick-icon" style="background:rgba(99,102,241,0.18)">🤖</div><div><div style="font-size:13px;font-weight:700;color:var(--text)">AI Interview Bot</div><div style="font-size:11px;color:var(--muted2)">HR · Tech · Behavioral</div></div></div>
+    <div class="quick-card" onclick="showPage('resume')"><div class="quick-icon" style="background:rgba(219,39,119,0.18)">📄</div><div><div style="font-size:13px;font-weight:700;color:var(--text)">Resume AI Review</div><div style="font-size:11px;color:var(--muted2)">ATS score + keywords</div></div></div>
+    <div class="quick-card" onclick="showPage('companies')"><div class="quick-icon" style="background:rgba(14,165,233,0.18)">🏢</div><div><div style="font-size:13px;font-weight:700;color:var(--text)">Company Sheets</div><div style="font-size:11px;color:var(--muted2)">Google · TCS · Amazon</div></div></div>
+    <div class="quick-card" onclick="showPage('leaderboard')"><div class="quick-icon" style="background:rgba(245,158,11,0.18)">🏆</div><div><div style="font-size:13px;font-weight:700;color:var(--text)">Leaderboard</div><div style="font-size:11px;color:var(--muted2)">See where you rank</div></div></div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="sec-label">Today's Challenges</div>
+      <div id="dash-tasks"></div>
+    </div>
+    <div class="card">
+      <div class="sec-label">Recent Problems</div>
+      <div id="dash-recent"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DSA TRACKER ═════════════════════════════════════════ -->
+<section id="page-dsa" class="page">
+  <div class="ph">
+    <h1>DSA Problem Tracker 💻</h1>
+    <p id="dsa-subtitle">Loading...</p>
+  </div>
+
+  <div id="dsa-progress-bars" class="stats-row"></div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px">
+    <div class="pills" style="margin:0">
+      <button class="pill active-v" onclick="setDsaView('All',this)">All</button>
+      <button class="pill" onclick="setDsaView('Starred',this)">⭐ Starred</button>
+      <button class="pill" onclick="setDsaView('Unsolved',this)">⬜ Unsolved</button>
+    </div>
+    <div style="width:1px;height:20px;background:var(--border2)"></div>
+    <div class="pills" style="margin:0">
+      <button class="pill active-v" onclick="setDsaDiff('All',this)">All</button>
+      <button class="pill" onclick="setDsaDiff('Easy',this)">Easy</button>
+      <button class="pill" onclick="setDsaDiff('Medium',this)">Medium</button>
+      <button class="pill" onclick="setDsaDiff('Hard',this)">Hard</button>
+    </div>
+    <select class="filter-select" id="dsa-topic-sel" onchange="renderDSA()">
+      <option value="All">All Topics</option>
+    </select>
+    <input type="text" class="search-input" placeholder="🔍 Search problems..." oninput="renderDSA()" id="dsa-search" style="width:180px"/>
+    <span id="dsa-count" style="margin-left:auto;font-size:11px;color:var(--muted)"></span>
+  </div>
+
+  <div class="tbl" id="dsa-table">
+    <div class="tbl-head" style="grid-template-columns:36px 1fr 80px 120px 1fr 60px">
+      <span></span><span>Problem</span><span>Difficulty</span><span>Topic</span><span>Companies</span><span style="text-align:right">★</span>
+    </div>
+    <div id="dsa-rows"></div>
+  </div>
+</section>
+
+<!-- ══ MOCK TESTS ═══════════════════════════════════════════ -->
+<section id="page-aptitude" class="page">
+  <div class="ph">
+    <h1>Mock Tests 🧮</h1>
+    <p>Aptitude · TCS NQT · GATE CS — with instant AI explanations</p>
+  </div>
+
+  <div style="display:flex;gap:0;background:rgba(255,255,255,0.04);border-radius:14px;padding:4px;width:fit-content;margin-bottom:24px">
+    <button class="btn" id="tab-apt" onclick="setQuizMode('aptitude')" style="background:var(--grad2);color:#fff;border-radius:10px;padding:10px 20px;flex-direction:column;gap:2px">
+      <span>🧮 General Aptitude</span><span style="font-size:9px;opacity:0.7;font-weight:500">10 Questions</span>
+    </button>
+    <button class="btn btn-ghost" id="tab-tcs" onclick="setQuizMode('tcs')" style="border:none;border-radius:10px;padding:10px 20px;flex-direction:column;gap:2px">
+      <span>🎯 TCS NQT Mode</span><span style="font-size:9px;opacity:0.7;font-weight:500">20 Questions</span>
+    </button>
+    <button class="btn btn-ghost" id="tab-gate" onclick="setQuizMode('gate')" style="border:none;border-radius:10px;padding:10px 20px;flex-direction:column;gap:2px">
+      <span>🎓 GATE CS MCQ</span><span style="font-size:9px;opacity:0.7;font-weight:500">20 Questions</span>
+    </button>
+  </div>
+
+  <div id="quiz-notice"></div>
+  <div id="quiz-area"></div>
+</section>
+
+<!-- ══ RESUME AI ════════════════════════════════════════════ -->
+<section id="page-resume" class="page">
+  <div class="ph">
+    <h1>AI Resume Reviewer 📄</h1>
+    <p>Get ATS score, impact analysis & missing keywords — powered by Claude AI</p>
+  </div>
+
+  <div id="resume-grid" class="resume-grid single">
+    <div>
+      <textarea class="resume-textarea" id="resume-input" placeholder="Paste your complete resume here..."></textarea>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button class="btn btn-primary btn-full" id="review-btn" onclick="reviewResume()">🔍 Analyze My Resume</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('resume-input').value='';document.getElementById('resume-result').innerHTML='';document.getElementById('resume-grid').className='resume-grid single'" style="padding:12px 16px">Clear</button>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div class="sec-label">💡 Tips for a Higher Score</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="font-size:12px;color:var(--muted2);display:flex;gap:7px"><span style="color:var(--violet3);flex-shrink:0">→</span>Quantify every achievement — "reduced load time by 40%" beats "improved performance"</div>
+          <div style="font-size:12px;color:var(--muted2);display:flex;gap:7px"><span style="color:var(--violet3);flex-shrink:0">→</span>Include ATS keywords from the job description you're targeting</div>
+          <div style="font-size:12px;color:var(--muted2);display:flex;gap:7px"><span style="color:var(--violet3);flex-shrink:0">→</span>Add GitHub and LinkedIn links to prove your work</div>
+          <div style="font-size:12px;color:var(--muted2);display:flex;gap:7px"><span style="color:var(--violet3);flex-shrink:0">→</span>Keep it to 1 page for freshers, 2 max for experienced professionals</div>
+          <div style="font-size:12px;color:var(--muted2);display:flex;gap:7px"><span style="color:var(--violet3);flex-shrink:0">→</span>Use strong action verbs: Built, Designed, Reduced, Deployed, Led</div>
+        </div>
+      </div>
+    </div>
+    <div id="resume-result"></div>
+  </div>
+</section>
+
+<!-- ══ INTERVIEW BOT ════════════════════════════════════════ -->
+<section id="page-chatbot" class="page">
+  <div class="ph">
+    <h1>AI Interview Bot 🤖</h1>
+    <p>Practice with a real-feel AI interviewer — HR, Technical & Behavioral</p>
+  </div>
+  <div class="chat-outer">
+    <div class="chat-starters" id="chat-starters"></div>
+    <div class="chat-window" id="chat-window"></div>
+    <div class="chat-input-row">
+      <input type="text" class="chat-input" id="chat-input" placeholder="Type your answer... (Enter to send)" onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button class="btn btn-primary" onclick="sendChat()">Send ↵</button>
+      <button class="btn btn-ghost" onclick="clearChat()" title="Clear chat" style="padding:13px 14px">🗑</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ COMPANY SHEETS ════════════════════════════════════════ -->
+<section id="page-companies" class="page">
+  <div class="ph">
+    <h1>Company-wise Coding Sheets 🏢</h1>
+    <p>Curated problem sets tailored to each company's interview style</p>
+  </div>
+  <div class="pills">
+    <button class="pill active-v" onclick="setCOFilter('All',this)">All Companies</button>
+    <button class="pill" onclick="setCOFilter('Product-Based',this)">Product-Based</button>
+    <button class="pill" onclick="setCOFilter('Service-Based',this)">Service-Based</button>
+    <button class="pill" onclick="setCOFilter('Fintech',this)">Fintech</button>
+  </div>
+  <div class="co-grid" id="co-grid"></div>
+</section>
+
+<!-- ══ LEADERBOARD ══════════════════════════════════════════ -->
+<section id="page-leaderboard" class="page">
+  <div class="ph">
+    <h1>Leaderboard 🏆</h1>
+    <p>Weekly rankings based on problems solved, test scores & streak consistency</p>
+  </div>
+  <div class="podium" id="podium"></div>
+  <div class="lb-table">
+    <div class="lb-head"><span>Rank</span><span>Student</span><span>Score</span><span>Solved</span><span>Streak</span><span>This Week</span></div>
+    <div id="lb-rows"></div>
+  </div>
+</section>
+
+<!-- ══ DAILY STREAK ═════════════════════════════════════════ -->
+<section id="page-streak" class="page">
+  <div class="ph">
+    <h1>Daily Streak 🔥</h1>
+    <p>Solve at least 1 problem every day — consistency beats intensity!</p>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card" style="border-top-color:var(--amber2)"><div class="stat-icon">🔥</div><div class="stat-val">7d</div><div class="stat-label">Current Streak</div><div class="stat-sub" style="color:var(--amber2)">Don't break it!</div></div>
+    <div class="stat-card" style="border-top-color:var(--pink2)"><div class="stat-icon">🏅</div><div class="stat-val">23d</div><div class="stat-label">Longest Streak</div><div class="stat-sub" style="color:var(--pink2)">Set Apr 2025</div></div>
+    <div class="stat-card" style="border-top-color:var(--green2)"><div class="stat-icon">✅</div><div class="stat-val">47/90</div><div class="stat-label">Days Active</div><div class="stat-sub" style="color:var(--green2)">Last quarter</div></div>
+    <div class="stat-card" style="border-top-color:var(--violet3)"><div class="stat-icon">⭐</div><div class="stat-val">6340</div><div class="stat-label">Total XP Earned</div><div class="stat-sub" style="color:var(--violet3)">Level 12</div></div>
+  </div>
+  <div class="card" style="margin-bottom:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="sec-label" style="margin:0">Activity Map — Last 70 Days</div>
+      <div style="display:flex;gap:12px">
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,0.04)"></div><span style="font-size:10px;color:var(--muted)">None</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:12px;border-radius:3px;background:rgba(124,58,237,0.4)"></div><span style="font-size:10px;color:var(--muted)">Light</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:12px;border-radius:3px;background:rgba(124,58,237,0.85)"></div><span style="font-size:10px;color:var(--muted)">Active</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:12px;border-radius:3px;background:linear-gradient(135deg,#f59e0b,#ef4444)"></div><span style="font-size:10px;color:var(--muted)">Today</span></div>
+      </div>
+    </div>
+    <div class="heatmap" id="heatmap"></div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="sec-label">Today's Challenges</div>
+      <div id="streak-tasks"></div>
+      <div style="margin-top:14px">
+        <div class="prog-track"><div class="prog-fill" id="task-prog" style="background:linear-gradient(90deg,var(--green2),var(--violet2))"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:5px;text-align:right" id="task-prog-lbl"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-label">Streak Milestones</div>
+      <div class="milestone-grid" style="margin-top:0">
+        <div class="milestone earned"><div style="font-size:22px;margin-bottom:6px">🌱</div><div style="font-size:11px;font-weight:700;color:var(--text)">3-Day Starter</div><div style="font-size:9px;color:var(--muted);margin-bottom:5px">3 days</div><div style="font-size:10px;color:var(--green2);font-weight:700">✓ Earned</div></div>
+        <div class="milestone earned"><div style="font-size:22px;margin-bottom:6px">⚔️</div><div style="font-size:11px;font-weight:700;color:var(--text)">Week Warrior</div><div style="font-size:9px;color:var(--muted);margin-bottom:5px">7 days</div><div style="font-size:10px;color:var(--green2);font-weight:700">✓ Earned</div></div>
+        <div class="milestone locked"><div style="font-size:22px;margin-bottom:6px">💪</div><div style="font-size:11px;font-weight:700;color:var(--text)">2-Week Grind</div><div style="font-size:9px;color:var(--muted);margin-bottom:5px">14 days</div><div style="font-size:10px;color:var(--violet3);font-weight:700">+300 XP</div></div>
+        <div class="milestone locked"><div style="font-size:22px;margin-bottom:6px">🏆</div><div style="font-size:11px;font-weight:700;color:var(--text)">Month Master</div><div style="font-size:9px;color:var(--muted);margin-bottom:5px">30 days</div><div style="font-size:10px;color:var(--violet3);font-weight:700">+1000 XP</div></div>
+        <div class="milestone locked"><div style="font-size:22px;margin-bottom:6px">🚀</div><div style="font-size:11px;font-weight:700;color:var(--text)">Elite Performer</div><div style="font-size:9px;color:var(--muted);margin-bottom:5px">60 days</div><div style="font-size:10px;color:var(--violet3);font-weight:700">+2500 XP</div></div>
+        <div class="milestone locked"><div style="font-size:22px;margin-bottom:6px">👑</div><div style="font-size:11px;font-weight:700;color:var(--text)">Centurion</div><div style="font-size:9px;color:var(--muted);margin-bottom:5px">100 days</div><div style="font-size:10px;color:var(--amber2);font-weight:700">+5000 XP</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ════════════ COMPANY SHEET MODAL ════════════ -->
+<div id="co-sheet-modal" class="modal-overlay" onclick="if(event.target===this)closeCoSheet()">
+  <div class="modal-box">
+    <div class="modal-header" id="co-sheet-header">
+      <div id="co-sheet-logo" style="width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0"></div>
+      <div>
+        <div id="co-sheet-title" style="font-size:18px;font-weight:900;color:#fff"></div>
+        <div id="co-sheet-meta" style="font-size:12px;color:var(--muted2);margin-top:2px"></div>
+      </div>
+      <div id="co-sheet-progress" style="margin-left:auto;text-align:right;margin-right:12px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px" id="co-progress-label"></div>
+        <div class="prog-track" style="width:120px"><div class="prog-fill" id="co-progress-bar" style="background:var(--violet2)"></div></div>
+      </div>
+      <div class="modal-close" onclick="closeCoSheet()">✕</div>
+    </div>
+    <div style="padding:14px 24px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <div class="pills" style="margin:0" id="cs-diff-pills">
+        <button class="pill active-v" onclick="setCSDiff('All',this)">All</button>
+        <button class="pill" onclick="setCSDiff('Easy',this)">Easy</button>
+        <button class="pill" onclick="setCSDiff('Medium',this)">Medium</button>
+        <button class="pill" onclick="setCSDiff('Hard',this)">Hard</button>
+      </div>
+      <input type="text" class="search-input" id="cs-search" placeholder="🔍 Search problems..." oninput="renderCoSheet()" style="width:180px;margin-left:auto"/>
+    </div>
+    <div style="display:grid;grid-template-columns:36px 1fr 80px 120px 90px 40px;padding:10px 16px;border-bottom:1px solid var(--border);font-size:10px;font-weight:800;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;background:rgba(0,0,0,0.2)">
+      <span></span><span>Problem</span><span>Difficulty</span><span>Topic</span><span>Link</span><span style="text-align:center">★</span>
+    </div>
+    <div id="co-sheet-rows" class="modal-body" style="padding:0;max-height:60vh"></div>
+  </div>
+</div>
+
+<!-- ══ PATTERNS ═══════════════════════════════════════════ -->
+<section id="page-patterns" class="page">
+  <div class="ph">
+    <h1>DSA Pattern Library 🧩</h1>
+    <p>Master the <strong style="color:var(--violet3)">core patterns</strong> behind every interview problem</p>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:22px">
+    <input type="text" class="search-input" id="pattern-search" placeholder="🔍 Search patterns..." oninput="renderPatterns()" style="width:200px"/>
+    <div class="pills" style="margin:0" id="pattern-cat-pills"></div>
+    <span id="pattern-count" style="margin-left:auto;font-size:11px;color:var(--muted)"></span>
+  </div>
+  <div id="patterns-container"></div>
+</section>
+
+<!-- ════════════ PROBLEM DETAIL MODAL ════════════ -->
+<div id="pd-modal" class="modal-overlay" onclick="if(event.target===this)closePD()">
+  <div class="modal-box" style="max-width:760px">
+    <div class="modal-header">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <span id="pd-title" style="font-size:17px;font-weight:900;color:#fff"></span>
+          <span id="pd-diff-badge" class="diff"></span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span id="pd-topic-badge" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(99,102,241,0.15);color:#818cf8"></span>
+          <span id="pd-companies-list" style="font-size:11px;color:var(--muted2)"></span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+        <button id="pd-solve-btn" onclick="togglePDSolve()" style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--border2);background:rgba(5,150,105,0.1);color:var(--green2);font-family:var(--sans);transition:all 0.2s"></button>
+        <a id="pd-lc-link" target="_blank" rel="noopener" style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(255,160,0,0.1);color:#fbbf24;border:1px solid rgba(255,160,0,0.3);text-decoration:none;white-space:nowrap">🔗 LeetCode</a>
+        <div class="modal-close" onclick="closePD()">✕</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div id="pd-ai-loading" class="ai-loading">
+        <div class="ai-spinner"></div>
+        <div class="ai-loading-text">✨ Loading problem details…</div>
+      </div>
+      <div id="pd-content" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ PATTERN DETAIL MODAL ════════════ -->
+<div id="pd2-modal" class="modal-overlay" onclick="if(event.target===this)closePatternDetail()">
+  <div class="modal-box" style="max-width:780px">
+    <div class="modal-header">
+      <div>
+        <div style="font-size:17px;font-weight:900;color:#fff;margin-bottom:4px" id="pd2-title"></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span id="pd2-cat" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(99,102,241,0.15);color:#818cf8"></span>
+          <span id="pd2-desc" style="font-size:11px;color:var(--muted2)"></span>
+        </div>
+      </div>
+      <div class="modal-close" onclick="closePatternDetail()">✕</div>
+    </div>
+    <div style="padding:8px 20px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.2)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.1em;text-transform:uppercase">Progress</span>
+        <span id="pd2-progress-label" style="font-size:11px;font-weight:700;color:var(--violet3)"></span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="pd2-progress-bar" style="width:0%;background:var(--violet2)"></div></div>
+    </div>
+    <div class="modal-body" style="padding:16px 20px;max-height:65vh;overflow-y:auto">
+      <div style="font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">Click a problem to reveal the hint • Click ⬜ to mark solved • Click LeetCode → to open</div>
+      <div id="pd2-qs"></div>
+    </div>
+  </div>
+</div>
+
+<script src="scripts.js"></script>
+</div><!-- end app-wrapper -->
+</body>
+</html>
